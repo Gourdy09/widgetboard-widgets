@@ -1,6 +1,8 @@
 {
+  "$schema": "https://raw.githubusercontent.com/Gourdy09/widgetboard-widgets/main/schema/registry.schema.json",
   "schema_version": 1,
   "name": "WidgetBoard Widgets",
   "description": "Widgets for WidgetBoard.",
+  "repo": "Gourdy09/widgetboard-widgets",
   "widgets": []
 }

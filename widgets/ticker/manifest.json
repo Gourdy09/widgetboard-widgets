@@ -1,0 +1,20 @@
+{
+  "id": "official.ticker",
+  "name": "Stock / Crypto Ticker",
+  "version": "1.0.0",
+  "description": "Displays live market prices and configurable price charts.",
+  "author": "Gourdy09",
+  "entry": "tickerWidget.js",
+  "styles": "tickerWidget.css",
+  "size": {
+    "default": {
+      "col_span": 2,
+      "row_span": 2
+    },
+    "min": {
+      "col_span": 1,
+      "row_span": 1
+    }
+  },
+  "settings": {}
+}

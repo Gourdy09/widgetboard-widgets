@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Gourdy09/widgetboard-widgets/main/schema/manifest.schema.json",
+  "title": "WidgetBoard widget manifest (schema_version 1, widget API 1)",
+  "description": "Structure only. Rules that span several fields or the package's files (min <= default <= max, defaults inside options, id matches folder, file limits) are enforced by tools/validate.mjs and must be enforced identically by the WidgetBoard installer. See docs/WIDGET_SPEC.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "name", "version", "description", "author", "license", "category", "requires", "entry", "size"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "#/$defs/widgetId" },
+    "aliases": {
+      "description": "Legacy card type names this widget also answers to, so layouts saved before the widget had a namespaced id keep working. Only honoured when the registry entry lists them too.",
+      "type": "array",
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$" }
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "version": { "$ref": "#/$defs/semver" },
+    "description": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "author": { "type": "string", "minLength": 1, "maxLength": 60 },
+    "homepage": { "type": "string", "pattern": "^https://[^\\s]+$", "maxLength": 200 },
+    "license": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]*$", "maxLength": 40 },
+    "category": { "$ref": "#/$defs/category" },
+    "tags": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,23}$" }
+    },
+    "requires": { "$ref": "#/$defs/requires" },
+    "entry": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*(?:/[a-z0-9][a-z0-9._-]*)*\\.js$", "maxLength": 100 },
+    "styles": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*(?:/[a-z0-9][a-z0-9._-]*)*\\.css$", "maxLength": 100 },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "$ref": "#/$defs/cellPair" },
+        "min": { "$ref": "#/$defs/cellPair" },
+        "max": { "$ref": "#/$defs/cellPair" }
+      }
+    },
+    "refresh": {
+      "description": "Omit for widgets that never need scheduled refreshes. Values are milliseconds.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "integer", "minimum": 1000, "maximum": 86400000 },
+        "min": { "type": "integer", "minimum": 1000, "maximum": 86400000 }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "maxProperties": 20,
+      "propertyNames": { "pattern": "^[a-z][a-zA-Z0-9]{0,31}$" },
+      "additionalProperties": { "$ref": "#/$defs/setting" }
+    },
+    "elements": {
+      "description": "Named parts of the widget whose visibility the user can set (visible / hidden / collapsed). Declaring this replaces the four standard slots (title, subtitle, main, footer).",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z][a-z0-9]{0,15}$" },
+          "label": { "type": "string", "minLength": 1, "maxLength": 30 }
+        }
+      }
+    },
+    "permissions": { "$ref": "#/$defs/permissions" }
+  },
+
+  "$defs": {
+    "widgetId": {
+      "description": "<namespace>.<name>. The namespace is the publisher's GitHub username (lowercase). 'core' is reserved for widgets built into WidgetBoard.",
+      "type": "string",
+      "maxLength": 72,
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?\\.[a-z][a-z0-9-]{1,31}$"
+    },
+    "semver": {
+      "description": "MAJOR.MINOR.PATCH. Pre-release and build suffixes are not allowed in v1.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "maxLength": 32
+    },
+    "category": {
+      "enum": ["finance", "markets", "weather", "time", "productivity", "system", "media", "home", "news", "utilities", "other"]
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api"],
+      "properties": {
+        "api": { "description": "Widget API major version this widget was written for.", "type": "integer", "minimum": 1, "maximum": 99 },
+        "min_widgetboard": { "$ref": "#/$defs/semver" }
+      }
+    },
+    "cellPair": {
+      "description": "[columns, rows] in grid cells.",
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "type": "integer", "minimum": 1, "maximum": 24 }
+    },
+    "hostname": {
+      "description": "Lower-case DNS name with at least one dot. IP addresses, ports and wildcards are not allowed.",
+      "type": "string",
+      "pattern": "^(?![0-9.]+$)(?=.{4,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$"
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "description": "HTTPS hosts the widget may reach through ctx.http.fetch.",
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/hostname" }
+        }
+      }
+    },
+    "option": {
+      "oneOf": [
+        { "type": "string", "minLength": 1, "maxLength": 60 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "label"],
+          "properties": {
+            "value": { "type": "string", "minLength": 1, "maxLength": 60 },
+            "label": { "type": "string", "minLength": 1, "maxLength": 60 }
+          }
+        }
+      ]
+    },
+    "options": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "$ref": "#/$defs/option" } },
+
+    "setting": {
+      "oneOf": [
+        { "$ref": "#/$defs/setting_string" },
+        { "$ref": "#/$defs/setting_text" },
+        { "$ref": "#/$defs/setting_number" },
+        { "$ref": "#/$defs/setting_boolean" },
+        { "$ref": "#/$defs/setting_select" },
+        { "$ref": "#/$defs/setting_combobox" },
+        { "$ref": "#/$defs/setting_secret" }
+      ]
+    },
+    "setting_string": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label"],
+      "properties": {
+        "type": { "const": "string" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" },
+        "placeholder": { "type": "string", "maxLength": 60 },
+        "default": { "type": "string", "maxLength": 200 },
+        "maxLength": { "type": "integer", "minimum": 1, "maximum": 200 }
+      }
+    },
+    "setting_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label"],
+      "properties": {
+        "type": { "const": "text" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" },
+        "placeholder": { "type": "string", "maxLength": 60 },
+        "default": { "type": "string", "maxLength": 2000 },
+        "maxLength": { "type": "integer", "minimum": 1, "maximum": 2000 }
+      }
+    },
+    "setting_number": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label"],
+      "properties": {
+        "type": { "const": "number" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" },
+        "default": { "type": "number" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "setting_boolean": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label"],
+      "properties": {
+        "type": { "const": "boolean" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "default": { "type": "boolean" }
+      }
+    },
+    "setting_select": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label", "options"],
+      "properties": {
+        "type": { "const": "select" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" },
+        "options": { "$ref": "#/$defs/options" },
+        "default": { "type": "string", "maxLength": 60 }
+      }
+    },
+    "setting_combobox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label", "options"],
+      "properties": {
+        "type": { "const": "combobox" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" },
+        "options": { "$ref": "#/$defs/options" },
+        "allowCustom": { "type": "boolean" },
+        "default": { "type": "string", "maxLength": 60 }
+      }
+    },
+    "setting_secret": {
+      "description": "Stored on the server only. Never part of the layout, never sent to the browser, never readable by widget code. Reached only through ctx.http.fetch with a {{secret:<key>}} placeholder.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label"],
+      "properties": {
+        "type": { "const": "secret" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "help": { "type": "string", "maxLength": 120 },
+        "required": { "type": "boolean" }
+      }
+    }
+  }
+}

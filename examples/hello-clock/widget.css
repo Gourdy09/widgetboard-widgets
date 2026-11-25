@@ -1,0 +1,17 @@
+/* Style with the --wb-* theme variables so the widget follows the user's theme.
+   The widget's area is a size container named "card": query it, not the screen. */
+.hc-time {
+  font-size: clamp(1.2rem, 14cqmin, 4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--wb-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hc-date {
+  font-size: clamp(0.7rem, 5cqmin, 1.2rem);
+  color: var(--wb-text-muted);
+}
+@container card (max-height: 90px) {
+  .hc-date { display: none; }
+}

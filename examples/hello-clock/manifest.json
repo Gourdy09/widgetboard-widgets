@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Gourdy09/widgetboard-widgets/main/schema/manifest.schema.json",
+  "schema_version": 1,
+  "id": "example.hello-clock",
+  "name": "Hello Clock",
+  "version": "1.0.0",
+  "description": "A minimal reference widget: a clock with a few settings.",
+  "author": "WidgetBoard",
+  "license": "MIT",
+  "category": "time",
+  "tags": ["clock", "example"],
+  "requires": { "api": 1 },
+  "entry": "widget.js",
+  "styles": "widget.css",
+  "size": {
+    "default": [2, 1],
+    "min": [1, 1],
+    "max": [6, 3]
+  },
+  "settings": {
+    "hour12": { "type": "boolean", "label": "12-hour clock", "default": false },
+    "seconds": { "type": "boolean", "label": "Show seconds", "default": true },
+    "label": { "type": "string", "label": "Label", "default": "", "maxLength": 40 },
+    "timezone": {
+      "type": "select",
+      "label": "Time zone",
+      "options": [
+        { "value": "local", "label": "This device" },
+        { "value": "UTC", "label": "UTC" },
+        { "value": "America/New_York", "label": "New York" },
+        { "value": "Europe/London", "label": "London" },
+        { "value": "Asia/Tokyo", "label": "Tokyo" }
+      ],
+      "default": "local"
+    }
+  }
+}
